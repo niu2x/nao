@@ -1,4 +1,6 @@
 *.img
+first_sector
+first_sector.tmp
 
 # Prerequisites
 *.d
