@@ -13,7 +13,7 @@ disk.img:
 first_sector: arch/x86_64/boot/first_sector.S
 	$(AS) -o $@.tmp $<
 	objcopy --dump-section .text=$@ $@.tmp
-	rm $@.tmp
+# 	rm $@.tmp
 
 build_tools: 
 	make -C tools
