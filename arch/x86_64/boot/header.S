@@ -1,16 +1,38 @@
 // load at 0x1000:0x0000, 448KB
+	
+	.set header_seg, 0x1000
+	.set origin, 0x0000
+
 	.include "utils.h"
 	.section .text
-	.set origin, 0x0000
 	.code16
 _start:
-	mov $0x1000, %ax
+	mov $header_seg, %ax
 	mov %ax, %ds
 	mov %ax, %es
 	mov %ax, %fs
 
 	mov $(_msg1 - _start + origin), %ax
 	call _puts
+
+	jmp _enter_32
+
+_enter_32:
+	cli
+
+	mov $(_msg2 - _start + origin), %ax
+	call _puts
+	
+	call _set_A20
+
+	lgdt _gdtp
+
+	.code32
+	mov %cr0, %eax 
+	or $1, %al
+	mov %eax, %cr0
+
+	sti
 
 1:	hlt
 	jmp 1b
@@ -21,6 +43,41 @@ _putchar:
 	int $0x10
 	pop_regs
 	ret
+
+_wait_8042_command:
+	in $0x64, %al
+	test $2, %al
+	jnz	_wait_8042_command
+	ret
+
+_set_A20:
+    call _wait_8042_command  
+    mov $0xAD, %al         
+    out %al, $0x64
+
+    call _wait_8042_command 
+    mov $0xD0, %al           
+    out %al, $0x64
+
+    call _wait_8042_command   
+    in  $0x60, %al           
+    push %ax               
+
+    call _wait_8042_command  
+    mov     $0xD1, %al         
+    out      %al, $0x64            
+
+    call _wait_8042_command  
+    pop     %ax              
+    or      $2, %al
+    out     %al, $0x60
+
+    call _wait_8042_command  
+    mov     $0xAE, %al        
+    out     %al, $0x64
+
+    call _wait_8042_command 
+    ret
 
 _puts:
 	push_regs
@@ -36,6 +93,30 @@ _puts:
 
 _msg1:
 	.asciz "[nao] header begin \n\r"
+
+_msg2:
+	.asciz "[nao] set a20 \n\r"
+
+_gdtp:
+	.short 23
+	.long _gdt
+
+_gdt:
+	.byte 0,0,0,0,0,0,0,0	
+
+	.short 0xFFFF
+	.short 0
+	.byte 0
+	.byte 0b10011010
+	.byte 0xAF
+	.byte 0
+
+	.short 0xFFFF
+	.short 0
+	.byte 0
+	.byte 0b10001010
+	.byte 0xAF
+	.byte 0
 
 _end:
 	.space (448*1024-(_end-_start)), 0x62
