@@ -1,19 +1,7 @@
 	.section .text
 	.code16
 
-	.macro push_regs
-	push %bx
-	push %cx
-	push %dx
-	push %di
-	.endm
-
-	.macro pop_regs
-	pop %di
-	pop %dx
-	pop %cx
-	pop %bx
-	.endm
+	.include "utils.h"
 // load at 0x7c00
 	.set origin, 0x7c00
 	.set header_sector, 2047
@@ -72,10 +60,12 @@ read_finish_loop:
 	jmp read_finish_loop
 read_finish:
 
-	mov $0x1000, %ax
-	mov %ax, %ds
-	mov $0, %ax
-	call _puts
+	// mov $0x1000, %ax
+	// mov %ax, %ds
+	// mov $0, %ax
+	// call _puts
+
+	ljmp $0x1000, $0x0000
 
 1:	hlt
 	jmp 1b
