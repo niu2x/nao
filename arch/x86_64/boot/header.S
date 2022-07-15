@@ -6,6 +6,7 @@
 	.include "utils.h"
 	.section .text
 	.code16
+	.global _start	
 _start:
 	mov $header_seg, %ax
 	mov %ax, %ds
@@ -18,25 +19,41 @@ _start:
 	jmp _enter_32
 
 _enter_32:
-	cli
 
 	mov $(_msg2 - _start + origin), %ax
 	call _puts
-	
+
+	cli
+
 	call _set_A20
+	lgdt _gdtp-_start
 
-	lgdt _gdtp
-
-	.code32
 	mov %cr0, %eax 
 	or $1, %al
 	mov %eax, %cr0
 
-	sti
+	mov $0, %cx 
+	data32 ljmp $8, $(_entry_32 - _start + header_seg*16)
+
+	.code32
+_entry_32:
+	mov $16, %ax	
+	mov %ax, %es
+	mov %ax, %ds
+	mov %ax, %fs
+	mov %ax, %ss
+
+	mov $0xb8000, %eax
+
+	movb $65, 2(%eax)
+	movb $0xF0, 3(%eax)
+
+	call main32
 
 1:	hlt
 	jmp 1b
 
+	.code16 
 _putchar:
 	push_regs
 	mov $0xE, %ah	
@@ -99,7 +116,7 @@ _msg2:
 
 _gdtp:
 	.short 23
-	.long _gdt
+	.long _gdt - _start + header_seg*16
 
 _gdt:
 	.byte 0,0,0,0,0,0,0,0	
@@ -108,15 +125,12 @@ _gdt:
 	.short 0
 	.byte 0
 	.byte 0b10011010
-	.byte 0xAF
+	.byte 0xCF
 	.byte 0
 
 	.short 0xFFFF
 	.short 0
 	.byte 0
-	.byte 0b10001010
-	.byte 0xAF
+	.byte 0b10010010
+	.byte 0xCF
 	.byte 0
-
-_end:
-	.space (448*1024-(_end-_start)), 0x62

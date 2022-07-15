@@ -3,7 +3,7 @@ BUILD_DIR := build
 run: header first_sector disk.img build_tools
 	./tools/ddx first_sector disk.img 
 	./tools/ddx -s 1048064 header disk.img 
-	qemu-system-x86_64  -drive file=disk.img,format=raw,media=disk,index=0
+	qemu-system-x86_64  -D log -drive file=disk.img,format=raw,media=disk,index=0 
 clean:
 	echo clean
 
