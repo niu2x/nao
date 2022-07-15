@@ -2,8 +2,7 @@ BUILD_DIR := build
 
 run: first_sector disk.img build_tools
 	./tools/ddx first_sector disk.img 
-	qemu-system-x86_64  -drive file=disk.img,format=raw,media=disk
-
+	qemu-system-x86_64  -drive file=disk.img,format=raw,media=disk,index=0
 clean:
 	echo clean
 
