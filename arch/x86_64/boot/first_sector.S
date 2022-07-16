@@ -59,12 +59,6 @@ read_finish_loop:
 
 	jmp read_finish_loop
 read_finish:
-
-	// mov $0x1000, %ax
-	// mov %ax, %ds
-	// mov $0, %ax
-	// call _puts
-
 	ljmp $0x1000, $0x0000
 
 1:	hlt
@@ -99,11 +93,6 @@ _puts:
 	ret
 
 _error:
-	// mov %ah, %al
-	// shr $4, %al
-	// and $0x0F, %al
-	// add $48, %al
-	// call _putchar
 	mov $(_msg2-_start)+origin, %ax
 	call _puts
 1:	hlt
@@ -122,4 +111,3 @@ _dapack:
 	.short 0
 	.short 0
 _end:
-	.space 400-(_end-_start), 0x61

@@ -11,7 +11,7 @@ disk.img:
 	./tools/create_empty_disk.sh $@
 
 first_sector: arch/x86_64/boot/first_sector.S arch/x86_64/boot/utils.h
-	$(AS) --m32 -o $@.tmp -Iarch/x86_64/boot $<
+	$(AS) --32 -o $@.tmp -Iarch/x86_64/boot $<
 	objcopy --dump-section .text=$@ $@.tmp
 # 	rm $@.tmp
 
