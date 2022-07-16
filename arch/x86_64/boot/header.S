@@ -42,6 +42,8 @@ _entry_32:
 	mov %ax, %ds
 	mov %ax, %fs
 	mov %ax, %ss
+	mov $0x7C00, %esp
+	mov $0x7C00, %ebp
 
 	mov $0xb8000, %eax
 
@@ -49,6 +51,9 @@ _entry_32:
 	movb $0xF0, 3(%eax)
 
 	call main32
+	// xor %eax, %eax
+	// mov $1, %eax
+	// or %eax, %eax
 
 1:	hlt
 	jmp 1b
